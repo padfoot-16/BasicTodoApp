@@ -76,22 +76,57 @@ void _promptRemoveTodoItem (int index) {
     return _buildtodolist();
   }
   Widget _buildtodolist() {
-    return ListView.builder(
-      itemCount: _todoitems.length,
-      // ignore: missing_return
-      itemBuilder:(context,index){
-        if(index < _todoitems.length) {
-          return _buildtodoItem(_todoitems[index],index);
-        }
-      },
-      );
+    return Column(
+        children: [
+          Stack(
+            children:<Widget>[
+              Container(
+              height: 150,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30)
+              ),
+              color: Colors.white,
+              ),
+            ),
+          
+          Container(
+            height: 80,
+            width: 80,
+            margin: EdgeInsets.only(top:110,left:MediaQuery.of(context).size.width*0.5-43),
+            child: FloatingActionButton(
+              child: Icon(Icons.add,size: 60,),
+              backgroundColor: Colors.red,
+              onPressed:_pushAddTodoScreen,
+            ), 
+          ),
+            ]
+          ),
+              Expanded(
+              
+              child: ListView.builder(
+                itemCount: _todoitems.length,
+                
+                // ignore: missing_return
+                itemBuilder:(context,index){
+                  if(index < _todoitems.length) {
+                    return _buildtodoItem(_todoitems[index],index);
+                  }
+                },
+                ),
+                      
+            ) 
+        ],
+      );   
   }
   Widget _buildtodoItem(String todoText, int index) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 1.0,horizontal: 4.0),
       child: Card(
             child: ListTile(
-          title:Text(todoText),
+          title:Text(todoText,style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
+          subtitle: Text("this is a subttitle"),
           contentPadding: EdgeInsets.all(8.0),
           //isThreeLine: true,
           
@@ -100,48 +135,94 @@ void _promptRemoveTodoItem (int index) {
       ),
     );
   }
-  void _pushSaved() {
-    Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => compTasks()));   
-  }
+  
 Widget compTasks() {
-  return Scaffold(
-      appBar: AppBar(
-        title: Text('Completed Tasks'),
-      ),
-      body:ListView.builder(
-          itemCount: done.length,
-          itemBuilder: (context, index) {
-            return ListTile(
-              title: Text(done[index]),
-              onTap: () =>rmdata(index),
-            );
+  return Column(
+        children: [
+          Stack(
+            children:<Widget>[
+              Container(
+                padding: EdgeInsets.only(left:20),
+              height: 150,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30)
+              ),
+              color: Colors.white,
+              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children:<Widget> [
+              Text("Completed Tasks",style: TextStyle(color: Colors.black,fontSize: 35,fontWeight: FontWeight.bold)),
+              Container(),
+            ],
+            )
+          ),
+            ]
+          ),
+              Expanded(
+              child: ListView.builder(
+              itemCount: done.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 1,horizontal: 1),
+                   child: Card(
+                        child: ListTile(
+                        title: Text(done[index]),
+                          onTap: () =>rmdata(index),
+                         ),
+                  ),
+                );
   }
-    )
-    );
+    ),
+              )
+        ],
+      );   
 }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return MaterialApp(
+      home: SafeArea(
+        child: DefaultTabController(
+          length: 2,
+          child: Scaffold(
+      body:new TabBarView(
+              children: [
+         _buildtodolist(),
+         compTasks(),
+
+              ],
+      ),
       appBar: AppBar(
-        title:Text("ToDo List") ,
-        actions: [
-          IconButton(icon: Icon(Icons.list), onPressed: _pushSaved),
-        ],
-        ),
-        body: _buildtodolist(),
-        floatingActionButton: FloatingActionButton(
-          onPressed: _pushAddTodoScreen,
-          tooltip: "Add Task",
-          child: Icon(Icons.add),
-        ),
-    );
+        elevation: 0,
+        title:TabBar(
+          tabs: [
+            Tab(icon: Icon(Icons.home),),
+            Tab(icon: Icon(Icons.list),),
+            
+          ],
+          labelColor: Colors.yellow,
+          unselectedLabelColor: Colors.blue,
+          indicatorSize: TabBarIndicatorSize.label,
+          indicatorPadding: EdgeInsets.all(5.0),
+          indicatorColor: Colors.white,
+          ),
+          backgroundColor: Colors.white,
+      ),
+        backgroundColor: Colors.grey,
+          )
+          )
+      )
+      );
   }
 void rmdata( int index)async{
+
   final prefs=await SharedPreferences.getInstance();
-setState(() {
-done.removeAt(index);
-});
+  setState(() {
+  done.removeAt(index);
+  });
 prefs.remove('todoitems');
 }
   void _pushAddTodoScreen(){
