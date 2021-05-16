@@ -30,18 +30,22 @@ class _ToDoListState extends State<ToDoList> {
   List<String>done=[];
   List<String>description=[];
   String task="";
+  String descr="";
   
-  void _addTodoItem(String task) async{
+  void _addTodoItem(String task , String descr) async{
 
     final prefs=await SharedPreferences.getInstance();
     if(task.length > 0) {
-      setState(() => _todoitems.add(task));
+      setState(() { _todoitems.add(task);
+      description.add(descr);
+      });
       prefs.setStringList('todoitems', _todoitems);
     }
   }
 void _removeTodoItem(int index) {
   setState(() { done.add(_todoitems[index]);
   _todoitems.removeAt(index);
+  description.removeAt(index);
   });
 }
 
@@ -90,6 +94,16 @@ void _promptRemoveTodoItem (int index) {
               color: Colors.white,
               ),
             ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                
+                Container(),
+            Container(
+              child:Text("TODO List",style: TextStyle(fontSize: 40,fontWeight: FontWeight.bold)),
+            ),
+              ],
+            ),
           
           Container(
             height: 80,
@@ -97,7 +111,7 @@ void _promptRemoveTodoItem (int index) {
             margin: EdgeInsets.only(top:110,left:MediaQuery.of(context).size.width*0.5-43),
             child: FloatingActionButton(
               child: Icon(Icons.add,size: 60,),
-              backgroundColor: Colors.red,
+              backgroundColor: Colors.grey,
               onPressed:_pushAddTodoScreen,
             ), 
           ),
@@ -111,7 +125,7 @@ void _promptRemoveTodoItem (int index) {
                 // ignore: missing_return
                 itemBuilder:(context,index){
                   if(index < _todoitems.length) {
-                    return _buildtodoItem(_todoitems[index],index);
+                    return _buildtodoItem(_todoitems[index],index,description[index]);
                   }
                 },
                 ),
@@ -120,15 +134,15 @@ void _promptRemoveTodoItem (int index) {
         ],
       );   
   }
-  Widget _buildtodoItem(String todoText, int index) {
+  Widget _buildtodoItem(String todoText, int index,String descri) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 1.0,horizontal: 4.0),
       child: Card(
             child: ListTile(
-          title:Text(todoText,style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
-          subtitle: Text("this is a subttitle"),
+          title:Text(todoText,style: TextStyle(fontSize: 28,fontWeight: FontWeight.bold),),
+          subtitle: Text(descri,style: TextStyle(fontSize: 20),),
           contentPadding: EdgeInsets.all(8.0),
-          //isThreeLine: true,
+          isThreeLine: true,
           
           onTap: () => _promptRemoveTodoItem(index),
         ),
@@ -211,7 +225,7 @@ Widget compTasks() {
           ),
           backgroundColor: Colors.white,
       ),
-        backgroundColor: Colors.grey,
+        backgroundColor: Colors.grey[800],
           )
           )
       )
@@ -231,20 +245,32 @@ prefs.remove('todoitems');
      builder: (BuildContext context ) {
        return AlertDialog(
          title: Text("Add a Task"),
-         content: TextField(
-           autofocus: true,
-           onSubmitted: (val){
-                _addTodoItem(val);
-                Navigator.pop(context);
-              },
-           decoration: InputDecoration(
-                hintText: "enter something to do ...",
-                contentPadding: const EdgeInsets.all(16.0) ,
-           ),
-           onChanged: (String value){
-             task=value;
-           },
+         content: Column(
+           children: [
+             TextField(
+               autofocus: true,
+               
+               decoration: InputDecoration(
+                    hintText: "enter something to do ...",
+                    contentPadding: const EdgeInsets.all(16.0) ,
+               ),
+               onChanged: (String value){
+                 task=value;
+               },
        ),
+        TextField(
+          maxLines: 3,
+          autofocus: true,
+          decoration: InputDecoration(
+            hintText: "Add a description ",
+            contentPadding: const EdgeInsets.all(16.0) 
+            ),
+            onChanged: (String description){
+              descr=description;
+            },
+        )
+           ],
+         ),
        actions: [
          // ignore: deprecated_member_use
          FlatButton(
@@ -254,7 +280,7 @@ prefs.remove('todoitems');
             // ignore: deprecated_member_use
             FlatButton(
               onPressed:(){
-                _addTodoItem(task);
+                _addTodoItem(task,descr);
                 Navigator.of(context).pop();
               },
              child: Text("Add Task")
