@@ -272,7 +272,6 @@ prefs.remove('todoitems');
            ],
          ),
        actions: [
-         // ignore: deprecated_member_use
          FlatButton(
            onPressed: () => Navigator.of(context).pop(),
               child: Text("Cancel")
